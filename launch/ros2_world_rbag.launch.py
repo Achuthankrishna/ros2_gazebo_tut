@@ -10,34 +10,35 @@
  * 
  */
 """
-from launch_ros.actions import Node
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
-from launch.substitutions import TextSubstitution
-from launch.substitutions import LaunchConfiguration
-from launch.actions import ExecuteProcess
+from launch_ros.actions import Node
+from launch.actions import DeclareLaunchArgument, LogInfo, ExecuteProcess
 from launch.conditions import IfCondition
+from launch.substitutions import LaunchConfiguration, TextSubstitution
 
 def generate_launch_description():
-    topics=LaunchConfiguration('topics')
-    rbag=DeclareLaunchArgument('bag_record',default_value=TextSubstitution(text="True"),choices=['True','False'],description="Recording ROS bag")
+    topics = DeclareLaunchArgument('topics', default_value='True')
+    rbag = DeclareLaunchArgument('bag_record', default_value=TextSubstitution(text="True"), choices=['True', 'False'], description="Recording ROS bag")
 
     return LaunchDescription([
-
-        DeclareLaunchArgument('topics',default_value='True'),
-
+        topics,
+        rbag,
         Node(
             package='ros2_gazebo_tut',
             executable='walker',
-            parameters=[
-                {"topics":LaunchConfiguration('topics')}
-
-            ]
+            name='MovementBot',
+            parameters=[{"topics": LaunchConfiguration('topics')}]
         ),
-        # ),
         ExecuteProcess(
             condition=IfCondition(LaunchConfiguration('bag_record')),
-            cmd=['ros2', 'bag', 'record', '-o', "./src/ros2_gazebo_tut/results/Bags",'-a','-x','/scan.*'],
+            cmd=[
+                'ros2', 'bag', 'record',
+                '/camera/camera_info','/tf', '/clock', '/cmd_vel',
+                '/events/read_split', '/odom', '/parameter_events','/robot_description', '/tf_static',
+                '--output', "./src/ros2_gazebo_tut/results/Bags"
+            ],
             shell=True
         )
     ])
+
+
