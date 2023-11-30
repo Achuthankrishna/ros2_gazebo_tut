@@ -30,7 +30,7 @@ using namespace std::chrono_literals;
  * @brief Enum representing different states of the Movement.
  */
 enum class StateType {
-  MOTION=0,
+  MOTION = 0,
   STOP,
   ROTATE,
 };
@@ -48,15 +48,16 @@ class Movement : public rclcpp::Node {
    * @param msg The laser scan message received from the sensor.
    */
   void subscribeCallback(const LASER& msg);
-
   /**
-   * @brief Timer callback function, called periodically to control the robot's behavior.
+   * @brief Timer Callback
+   * 
    */
   void timerCallback();
-
   /**
-   * @brief Detects if there is an obstacle based on the current laser scan data.
-   * @return True if an obstacle is detected, false otherwise.
+   * @brief Check for obstacle detection
+   * 
+   * @return true 
+   * @return false 
    */
   bool obstacleDetected();
 
