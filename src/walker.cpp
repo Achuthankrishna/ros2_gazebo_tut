@@ -79,7 +79,7 @@ private:
             // If STOP due to obstacle, then turn else move straight
             if (obstacleDetected()) {
                 state = ROTATE;
-                pub.angular.z = -0.2;
+                pub.angular.z = -0.25;
                 velocity_publisher_->publish(pub);
                 RCLCPP_INFO_STREAM(this->get_logger(), "STOP state");
             } else {
@@ -105,3 +105,28 @@ private:
             }
         }
     }
+    bool obstacleDetected() {
+        for (long unsigned int i = 0;
+             i < sizeof(current_scan.ranges) / sizeof(current_scan.ranges[0]); i++) {
+            if (current_scan.ranges[i] > current_scan.range_min
+                && current_scan.ranges[i] < current_scan.range_max) {
+                RCLCPP_INFO(this->get_logger(),
+                            "Distance: %f is valid", current_scan.ranges[i]);
+                if (current_scan.ranges[i] < 1.0) {
+                    RCLCPP_INFO(this->get_logger(),
+                                "Obstacle detected, rotating");
+                    return true;
+                }
+            }
+            return false;
+        }
+        return false;
+    }
+
+    // Initialization of publisher, subscriber, and variables
+    rclcpp::Subscription<LASER>::SharedPtr laser_subscriber_;
+    rclcpp::Publisher<TWIST>::SharedPtr velocity_publisher_;
+    rclcpp::TimerBase::SharedPtr timer_;
+    LASER current_scan;
+    StateType state;
+};
