@@ -79,7 +79,7 @@ private:
             // If STOP due to obstacle, then turn else move straight
             if (obstacleDetected()) {
                 state = ROTATE;
-                pub.angular.z = -0.15;
+                pub.angular.z = -0.2;
                 velocity_publisher_->publish(pub);
                 RCLCPP_INFO_STREAM(this->get_logger(), "STOP state");
             } else {
