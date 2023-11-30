@@ -27,10 +27,10 @@ TURTLEBOT3_MODEL = os.environ['TURTLEBOT3_MODEL']
 def generate_launch_description():
 
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
-    x_pose = LaunchConfiguration('x_pose', default='0.0')
+    x_pose = LaunchConfiguration('x_pose', default='-2.5')
     y_pose = LaunchConfiguration('y_pose', default='0.5')
 
-    launch_pkg = os.path.join(get_package_share_directory('ros2_gazebo_tut'), 'launch')
+    # launch_pkg = os.path.join(get_package_share_directory('ros2_gazebo_tut'), 'launch')
     launch_file_dir = os.path.join(get_package_share_directory('turtlebot3_gazebo'), 'launch')
     pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
 
@@ -64,7 +64,7 @@ def generate_launch_description():
 
     IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(launch_pkg, 'spawn_robot.launch.py')
+            os.path.join(launch_file_dir, 'spawn_turtlebot3.launch.py')
         ),
         launch_arguments={
             'x_pose': x_pose,
@@ -72,13 +72,11 @@ def generate_launch_description():
         }.items()
     ),
     ]
-
-    ld = LaunchDescription()
     actions.append(Node(
-        package='walker',
+        package='ros2_gazebo_tut',
         executable='walker',
-        name='walker',
+        name='movement',
         output='screen',
     ))
-    
-    return ld(actions)
+
+    return LaunchDescription(actions)
