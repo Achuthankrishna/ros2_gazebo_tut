@@ -55,13 +55,53 @@ public:
 
         // Subscriber to subscribe to /scan topic
         auto s_topic_name = "/scan";
-        // Callback function for subscriber
         auto sub_callback = std::bind(&Movement::subscribeCallback, this, _1);
         laser_subscriber_ = this->create_subscription<sensor_msgs::msg::LaserScan>(
             s_topic_name, default_qos, sub_callback);
-
-        // Buffer timer for processing
+        //Buffer_Time
         auto timer_callback = std::bind(&Movement::timerCallback, this);
+        //Timer CB
         timer_ = this->create_wall_timer(100ms, timer_callback);
     }
 
+private:
+    void subscribeCallback(const LASER &msg) { current_scan = msg; }
+
+    void timerCallback() {
+        if (current_scan.header.stamp.sec == 0) {
+            return;
+        }
+
+        // Define a TWIST type of publish message
+        auto pub = TWIST();
+
+        if (state == STOP) {
+            // If STOP due to obstacle, then turn else move straight
+            if (obstacleDetected()) {
+                state = ROTATE;
+                pub.angular.z = -0.15;
+                velocity_publisher_->publish(pub);
+                RCLCPP_INFO_STREAM(this->get_logger(), "STOP state");
+            } else {
+                state = MOTION;
+                pub.linear.x = 0.1;
+                velocity_publisher_->publish(pub);
+                RCLCPP_INFO_STREAM(this->get_logger(), "STOP state");
+            }
+        } else if (state == MOTION) {
+            if (obstacleDetected()) {  // Check transition
+                state = STOP;
+                pub.linear.x = 0;
+                velocity_publisher_->publish(pub);
+                RCLCPP_INFO_STREAM(this->get_logger(), "MOTION state");
+            }
+        } else if (state == ROTATE) {
+            // If it is in ROTATE state, rotate till no obstacle is found
+            if (!obstacleDetected()) {
+                state = MOTION;
+                pub.linear.x = 0.1;
+                velocity_publisher_->publish(pub);
+                RCLCPP_INFO_STREAM(this->get_logger(), "ROTATE state");
+            }
+        }
+    }
