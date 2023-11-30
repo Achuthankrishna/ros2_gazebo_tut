@@ -13,11 +13,13 @@ find_package(sensor_msgs REQUIRED)
 find_package(turtlebot3_gazebo REQUIRED)
 
 # Adding an executable for code to avoid obstacles
-add_executable(obstacle_avoidance src/obstacle_avoidance.cpp)
-ament_target_dependencies(obstacle_avoidance rclcpp sensor_msgs geometry_msgs)
+add_executable(walker src/walker.cpp src/main.cpp)
+ament_target_dependencies(walker rclcpp sensor_msgs geometry_msgs)
+target_include_directories(walker PRIVATE include)
+target_link_libraries(walker ${ament_LIBRARIES})
 
 install(TARGETS
-  obstacle_avoidance
+  walker
   DESTINATION lib/${PROJECT_NAME}/
 )
 
