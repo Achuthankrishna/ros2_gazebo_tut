@@ -130,3 +130,9 @@ private:
     LASER current_scan;
     StateType state;
 };
+int main(int argc, char** argv) {
+  rclcpp::init(argc, argv);
+  rclcpp::spin(std::make_shared<Movement>());
+  rclcpp::shutdown();
+  return 0;
+}
